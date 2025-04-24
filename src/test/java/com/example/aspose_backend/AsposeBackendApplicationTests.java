@@ -1,0 +1,13 @@
+package com.example.aspose_backend;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+class AsposeBackendApplicationTests {
+
+	@Test
+	void contextLoads() {
+	}
+
+}
