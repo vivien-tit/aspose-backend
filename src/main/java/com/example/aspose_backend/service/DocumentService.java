@@ -1,14 +1,17 @@
 package com.example.aspose_backend.service;
 
+import com.example.aspose_backend.dto.DocumentDTO;
 import com.example.aspose_backend.model.Document;
-import com.example.aspose_backend.model.Historique;
+// Ensure the Document class exists at the specified package and is compiled
 import com.example.aspose_backend.repository.DocumentRepository;
+import jakarta.persistence.EntityNotFoundException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
-
+import java.util.stream.Collectors;
 @Service
 public class DocumentService {
 
@@ -18,46 +21,44 @@ public class DocumentService {
     @Autowired
     private HistoriqueService historiqueService;
 
-    public List<Document> findAll() {
-        return documentRepository.findAll();
+    public List<DocumentDTO> getAllDocuments() {
+        return documentRepository.findAll()
+            .stream()
+            .map(DocumentDTO::new)
+            .collect(Collectors.toList());
     }
 
-    public Optional<Document> findById(Integer id) {
-        return documentRepository.findById(id);
+    public DocumentDTO createDocument(Document document) {
+        Document saved = documentRepository.save(document);
+        historiqueService.enregistrerHistorique(saved, "Création");
+        return new DocumentDTO(saved);
     }
 
-    public List<Document> findByUtilisateurId(Integer utilisateurId) {
-        return documentRepository.findByUtilisateurId(utilisateurId);
+    public DocumentDTO updateDocument(Long id, Document updatedDoc) {
+        Document existing = documentRepository.findById(id).orElseThrow();
+        existing.setTitre(updatedDoc.getTitre());
+        existing.setType(updatedDoc.getType());
+        existing.setContenuJson(updatedDoc.getContenuJson());
+        existing.setModele(updatedDoc.getModele());
+        existing.setUtilisateur(updatedDoc.getUtilisateur());
+        Document saved = documentRepository.save(existing);
+        historiqueService.enregistrerHistorique(saved, "Modification");
+        return new DocumentDTO(saved);
     }
 
-    public List<Document> findByType(Document.Type type) {
-        return documentRepository.findByType(type);
+    @Transactional
+    public void deleteDocument(Long id) {
+        Document doc = documentRepository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Document non trouvé avec l'ID : " + id));
+
+        // 2. Supprimer ensuite le document
+        documentRepository.delete(doc);
+        
+        // 1. Enregistrer l’historique
+        historiqueService.enregistrerHistorique(doc, "Suppression");
+
+        // 2. Supprimer ensuite le document
+        // documentRepository.delete(doc);
     }
 
-    public Document save(Document document, Historique.Action action) {
-        Document savedDocument = documentRepository.save(document);
-
-        Historique historique = new Historique();
-        historique.setAction(action);
-        historique.setDocument(savedDocument);
-        historique.setDateAction(java.time.LocalDateTime.now());
-
-        historiqueService.save(historique);
-
-        return savedDocument;
-    }
-
-    public void deleteById(Integer id) {
-        Optional<Document> doc = documentRepository.findById(id);
-        doc.ifPresent(d -> {
-            documentRepository.deleteById(id);
-
-            Historique historique = new Historique();
-            historique.setAction(Historique.Action.Suppression);
-            historique.setDocument(d);
-            historique.setDateAction(java.time.LocalDateTime.now());
-
-            historiqueService.save(historique);
-        });
-    }
 }

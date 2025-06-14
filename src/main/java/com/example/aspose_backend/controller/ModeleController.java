@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.example.aspose_backend.dto.ModeleDTO;
 import com.example.aspose_backend.model.Modele;
 import com.example.aspose_backend.service.ModeleService;
 
@@ -18,41 +19,28 @@ public class ModeleController {
     private ModeleService modeleService;
 
     @GetMapping
-    public List<Modele> getAll() {
-        return modeleService.findAll();
+    public List<ModeleDTO> getAll() {
+        return modeleService.getAllModeles();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Modele> getById(@PathVariable Integer id) {
-        return modeleService.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ModeleDTO getById(@PathVariable Long id) {
+        return modeleService.getModeleById(id);
     }
 
     @PostMapping
-    public ResponseEntity<Modele> create(@RequestBody Modele modele) {
-        return ResponseEntity.ok(modeleService.save(modele));
+    public ModeleDTO create(@RequestBody Modele modele) {
+        return modeleService.createModele(modele);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Modele> update(@PathVariable Integer id, @RequestBody Modele modele) {
-        return modeleService.findById(id)
-                .map(existing -> {
-                    existing.setNom(modele.getNom());
-                    existing.setCategorie(modele.getCategorie());
-                    existing.setFichierTemplate(modele.getFichierTemplate());
-                    existing.setApercuImg(modele.getApercuImg());
-                    return ResponseEntity.ok(modeleService.save(existing));
-                })
-                .orElse(ResponseEntity.notFound().build());
+    public ModeleDTO update(@PathVariable Long id, @RequestBody Modele modele) {
+        return modeleService.updateModele(id, modele);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Integer id) {
-        if (modeleService.findById(id).isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        modeleService.deleteById(id);
+    public ResponseEntity<?> delete(@PathVariable Long id) {
+        modeleService.deleteModele(id);
         return ResponseEntity.ok().build();
     }
 }

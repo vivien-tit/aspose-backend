@@ -1,25 +1,23 @@
-package com.example.aspose_backend.model;
+package com.example.aspose_backend.dto;
 
-import jakarta.persistence.*;
-@Entity
-@Table(name = "modeles")
-public class Modele {
+import com.example.aspose_backend.model.Modele;
+import com.example.aspose_backend.model.Modele.Categorie;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class ModeleDTO {
+
     private Long id;
-
     private String nom;
     private Categorie categorie;
-
-    @Column(name = "fichier_template")
     private String fichierTemplate;
-
-    @Column(name = "apercu_img")
     private String apercuImg;
 
-
-    // Getters et Setters
+    public ModeleDTO(Modele modele) {
+        this.id = modele.getId();
+        this.nom = modele.getNom();
+        this.categorie = modele.getCategorie();
+        this.fichierTemplate = modele.getFichierTemplate();
+        this.apercuImg = modele.getApercuImg();
+    }
 
     public Long getId() {
         return id;
@@ -59,10 +57,5 @@ public class Modele {
 
     public void setApercuImg(String apercuImg) {
         this.apercuImg = apercuImg;
-    }
-
-    public enum Categorie {
-        Professionnel,
-        Personnel
     }
 }

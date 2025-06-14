@@ -1,39 +1,30 @@
-package com.example.aspose_backend.model;
+package com.example.aspose_backend.dto;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
-@Entity
-@Table(name = "documents")
-public class Document {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
+import com.example.aspose_backend.model.Document;
+
+public class DocumentDTO {
+    private Long id;
     private String titre;
     private String type;
-
-    @Column(name = "contenu_json", columnDefinition = "json")
     private String contenuJson;
-
-    @Column(name = "date_creation", updatable = false)
-    private LocalDateTime dateCreation = LocalDateTime.now();
-
-    @Column(name = "derniere_modif")
+    private LocalDateTime dateCreation;
     private LocalDateTime derniereModif;
+    private Integer utilisateurId;
+    private Long modeleId;
 
-    @ManyToOne
-    @JoinColumn(name = "utilisateur_id", nullable = false)
-    private Utilisateur utilisateur;
-
-    @ManyToOne
-    @JoinColumn(name = "modele_id")
-    private Modele modele;
-
-    @PreUpdate
-    public void preUpdate() {
-        this.derniereModif = LocalDateTime.now();
+    public DocumentDTO(Document document) {
+        this.id = document.getId();
+        this.titre = document.getTitre();
+        this.type = document.getType();
+        this.contenuJson = document.getContenuJson();
+        this.dateCreation = document.getDateCreation();
+        this.derniereModif = document.getDerniereModif();
+        this.utilisateurId = document.getUtilisateur().getId();
+        this.modeleId = document.getModele() != null ? document.getModele().getId() : null;
     }
-
+    
     public Long getId() {
         return id;
     }
@@ -82,19 +73,20 @@ public class Document {
         this.derniereModif = derniereModif;
     }
 
-    public Utilisateur getUtilisateur() {
-        return utilisateur;
+    public Integer getUtilisateurId() {
+        return utilisateurId;
     }
 
-    public void setUtilisateur(Utilisateur utilisateur) {
-        this.utilisateur = utilisateur;
+    public void setUtilisateurId(Integer utilisateurId) {
+        this.utilisateurId = utilisateurId;
     }
 
-    public Modele getModele() {
-        return modele;
+    public Long getModeleId() {
+        return modeleId;
     }
 
-    public void setModele(Modele modele) {
-        this.modele = modele;
+    public void setModeleId(Long modeleId) {
+        this.modeleId = modeleId;
     }
+    // (Tu peux générer automatiquement dans ton IDE)
 }
